@@ -1,0 +1,179 @@
+#pragma version 10
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock "totalExpenses" "lastExpense" 0x151f7c75
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/hello_world/contract.algo.ts:5
+    // totalExpenses = GlobalState<uint64>({ key: "totalExpenses", initialValue: Uint64(0) })
+    bytec_0 // "totalExpenses"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/hello_world/contract.algo.ts:8
+    // lastExpense = GlobalState<bytes>({ key: "lastExpense", initialValue: Bytes("") })
+    bytec_1 // "lastExpense"
+    pushbytes ""
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/hello_world/contract.algo.ts:3
+    // export class ExpenseTracker extends Contract {
+    txn NumAppArgs
+    bz main_bare_routing@10
+    pushbytess 0x88759fd1 0xc247891f 0x427b4ff3 // method "addExpense(uint64,byte[])byte[]", method "getTotal()uint64", method "getLastExpense()byte[]"
+    txna ApplicationArgs 0
+    match main_addExpense_route@5 main_getTotal_route@6 main_getLastExpense_route@7
+
+main_after_if_else@14:
+    // smart_contracts/hello_world/contract.algo.ts:3
+    // export class ExpenseTracker extends Contract {
+    intc_0 // 0
+    return
+
+main_getLastExpense_route@7:
+    // smart_contracts/hello_world/contract.algo.ts:26
+    // getLastExpense(): bytes {
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub getLastExpense
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_getTotal_route@6:
+    // smart_contracts/hello_world/contract.algo.ts:21
+    // getTotal(): uint64 {
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub getTotal
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_addExpense_route@5:
+    // smart_contracts/hello_world/contract.algo.ts:11
+    // addExpense(amount: uint64, description: bytes): bytes {
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/hello_world/contract.algo.ts:3
+    // export class ExpenseTracker extends Contract {
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    extract 2 0
+    // smart_contracts/hello_world/contract.algo.ts:11
+    // addExpense(amount: uint64, description: bytes): bytes {
+    callsub addExpense
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_bare_routing@10:
+    // smart_contracts/hello_world/contract.algo.ts:3
+    // export class ExpenseTracker extends Contract {
+    txn OnCompletion
+    bnz main_after_if_else@14
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return
+
+
+// smart_contracts/hello_world/contract.algo.ts::ExpenseTracker.addExpense(amount: uint64, description: bytes) -> bytes:
+addExpense:
+    // smart_contracts/hello_world/contract.algo.ts:11
+    // addExpense(amount: uint64, description: bytes): bytes {
+    proto 2 1
+    // smart_contracts/hello_world/contract.algo.ts:12
+    // assert(amount > Uint64(0), "Amount must be greater than zero")
+    frame_dig -2
+    assert // Amount must be greater than zero
+    // smart_contracts/hello_world/contract.algo.ts:5
+    // totalExpenses = GlobalState<uint64>({ key: "totalExpenses", initialValue: Uint64(0) })
+    intc_0 // 0
+    bytec_0 // "totalExpenses"
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/hello_world/contract.algo.ts:14
+    // this.totalExpenses.value = Uint64(this.totalExpenses.value + amount)
+    frame_dig -2
+    +
+    // smart_contracts/hello_world/contract.algo.ts:5
+    // totalExpenses = GlobalState<uint64>({ key: "totalExpenses", initialValue: Uint64(0) })
+    bytec_0 // "totalExpenses"
+    // smart_contracts/hello_world/contract.algo.ts:14
+    // this.totalExpenses.value = Uint64(this.totalExpenses.value + amount)
+    swap
+    app_global_put
+    // smart_contracts/hello_world/contract.algo.ts:8
+    // lastExpense = GlobalState<bytes>({ key: "lastExpense", initialValue: Bytes("") })
+    bytec_1 // "lastExpense"
+    // smart_contracts/hello_world/contract.algo.ts:15
+    // this.lastExpense.value = description
+    frame_dig -1
+    app_global_put
+    // smart_contracts/hello_world/contract.algo.ts:17
+    // return description
+    frame_dig -1
+    retsub
+
+
+// smart_contracts/hello_world/contract.algo.ts::ExpenseTracker.getTotal() -> uint64:
+getTotal:
+    // smart_contracts/hello_world/contract.algo.ts:5
+    // totalExpenses = GlobalState<uint64>({ key: "totalExpenses", initialValue: Uint64(0) })
+    intc_0 // 0
+    bytec_0 // "totalExpenses"
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/hello_world/contract.algo.ts:22
+    // return this.totalExpenses.value
+    retsub
+
+
+// smart_contracts/hello_world/contract.algo.ts::ExpenseTracker.getLastExpense() -> bytes:
+getLastExpense:
+    // smart_contracts/hello_world/contract.algo.ts:8
+    // lastExpense = GlobalState<bytes>({ key: "lastExpense", initialValue: Bytes("") })
+    intc_0 // 0
+    bytec_1 // "lastExpense"
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/hello_world/contract.algo.ts:27
+    // return this.lastExpense.value
+    retsub
